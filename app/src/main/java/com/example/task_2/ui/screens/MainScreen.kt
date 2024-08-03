@@ -114,9 +114,12 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.UiMode
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.NotificationCompat.MessagingStyle.Message
@@ -376,6 +379,7 @@ fun DraggableTask(
     navController: NavController,
     vm: MainViewModel
 ) {
+    val categories by vm.getNoteWithCategories(task.noteId).observeAsState(listOf())
     var xOffset by remember { mutableStateOf(0f) }
     val offsetXAnim = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
@@ -395,8 +399,6 @@ fun DraggableTask(
         colorCategories.addAll(noteCategories.map { Color(it.color) })
     }
 
-    Log.d("muu", colorCategories.toList().toString())
-
     val brush = if (colorCategories.count() > 1) {
         Brush.linearGradient(colors = colorCategories)
     } else if (colorCategories.count() == 1) {
@@ -408,7 +410,7 @@ fun DraggableTask(
             .offset { IntOffset(xOffset.roundToInt(), 0) }
             .padding(5.dp)
             .border(
-                width = 6.dp,
+                width = 3.dp,
                 brush = brush,
                 RoundedCornerShape(10.dp)
             )
@@ -442,12 +444,35 @@ fun DraggableTask(
             if (task.name.isNotEmpty())
             Text(
                 text = task.name,
-                modifier = Modifier.padding(start = 15.dp, top = 10.dp, bottom = 10.dp),
+                modifier = Modifier.fillMaxWidth(0.5f).padding(start = 15.dp, top = 10.dp, bottom = 10.dp),
                 fontSize = 30.sp,
                 fontWeight = FontWeight.W800,
                 color = MaterialTheme.colorScheme.onSecondary,
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                if (categories.isNotEmpty())
+                    Text(
+                        text = "#${categories[0].category}",
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(
+                                start = 15.dp,
+                                bottom = 8.dp,
+                                end = 15.dp,
+                                top = 15.dp
+                            ),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.W600,
+
+                    )
+            }
+
+
 
         }
         if (task.content.isNotEmpty())
@@ -456,7 +481,8 @@ fun DraggableTask(
             modifier = Modifier.padding(start = 15.dp, bottom = 8.dp, end = 15.dp, top = if(task.name.isEmpty()) 15.dp else 0.dp),
             maxLines = 3,
             color = MaterialTheme.colorScheme.onSecondary,
-            fontSize = 20.sp
+            fontSize = 20.sp,
+            overflow = TextOverflow.Ellipsis
         )
     }
     if (flagSelect) {
