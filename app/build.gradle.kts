@@ -55,7 +55,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.navigation.compose)
-
+    implementation("com.github.skydoves:colorpicker-compose:1.1.2")
     implementation ("androidx.room:room-runtime:2.5.0") // Библиотека "Room"
     implementation ("androidx.room:room-ktx:2.5.0")
     implementation(libs.androidx.lifecycle.viewmodel.compose.android)

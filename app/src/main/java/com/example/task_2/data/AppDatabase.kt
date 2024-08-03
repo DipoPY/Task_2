@@ -8,27 +8,29 @@ import androidx.room.RoomDatabase
 @Database(
     version = 1,
     entities = [
-        Task::class
+        Task::class,
+        Category::class,
+        NoteCategoryCrossRef::class,
     ]
 )
-abstract class AppDatabase:RoomDatabase() {
-    abstract fun getStaticDao(): StaticDao
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun getTaskDao(): TaskDao
+    abstract fun getCategoryDao(): CategoryDao
+    abstract fun getNoteCategoryDao(): NoteCategoryDao
 
     companion object {
+        @Volatile
         private var INSTANCE: AppDatabase? = null
-        fun getInstance(context: Context): AppDatabase {
 
-            synchronized(this) {
-                var instance = INSTANCE
-                if (instance == null) {
-                    instance = Room.databaseBuilder(
-                        context.applicationContext,
-                        AppDatabase::class.java,
-                        "usersdb"
-                    ).fallbackToDestructiveMigration().build()
-                    INSTANCE = instance
-                }
-                return instance
+        fun getInstance(context: Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "tasks_database"
+                ).fallbackToDestructiveMigration().build()
+                INSTANCE = instance
+                instance
             }
         }
     }
